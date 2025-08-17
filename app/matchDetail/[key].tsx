@@ -1,7 +1,8 @@
 import { useLocalSearchParams } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { TabBar, TabView } from 'react-native-tab-view';
+import { CouponContext } from '../context/CouponContext';
 
 export default function MatchDetailScreen() {
   const params = useLocalSearchParams<{ key: string }>();
@@ -11,6 +12,7 @@ export default function MatchDetailScreen() {
   const [loading, setLoading] = useState(true);
   const layout = useWindowDimensions();
   const [index, setIndex] = useState(0);
+  const { addToCoupon, coupon } = useContext(CouponContext);
   
   const routes = [
     { key: 'taraf', title: 'Taraf' },
@@ -95,15 +97,39 @@ export default function MatchDetailScreen() {
         contentContainerStyle={{ padding: 16 }}
         renderItem={({ item }) => (
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>{item.title}</Text>
+            <Text style={styles.cardTitle}>{item.title.replace("_","/")}</Text>
             <View style={styles.oddsContainer}>
               {Object.entries(item.odds).map(([oddKey, oddValue]: [string, any]) => (
                 <View key={oddKey} style={styles.oddItem}>
-                  <View style={styles.oddBody}>
-                    <Text style={styles.oddValue}>{oddValue === '-' ? 'N/A' : oddValue}</Text>
-                  </View>
+                  <Pressable
+                    onPress={() => {
+                      // Kupona ekleme
+                      const selectedOdd = {
+                        id: matchKey,
+                        Taraflar: data.Taraflar,
+                        iddaa:item.title.replace("_","/") + " "+ oddKey,
+                        Oran: oddValue || "-",
+                      };
+                      addToCoupon(selectedOdd);
+                    }}
+                  >
+                    <View
+                      style={[
+                        styles.oddBody,
+                        {
+                          backgroundColor: coupon.find(
+                            (c) => c.id === matchKey && c.iddaa === item.title.replace("_","/") + " "+ oddKey
+                          )
+                            ? "green"
+                            : "white",
+                        },
+                      ]}
+                    >
+                      <Text style={styles.oddValue}>{oddValue === '-' ? '-' : oddValue}</Text>
+                    </View>
+                  </Pressable>
                   <View style={styles.oddHeader}>
-                    <Text style={styles.oddLabel}>{oddKey}</Text>
+                    <Text style={styles.oddLabel}>{oddKey.replace("_","/")}</Text>
                   </View>
                 </View>
               ))}
@@ -132,7 +158,7 @@ export default function MatchDetailScreen() {
             {...props}
             indicatorStyle={{ backgroundColor: 'white' }}
             style={{ backgroundColor: 'red' }}
-            tabStyle={{ backgroundColor: 'orange' }}
+            tabStyle={{ backgroundColor: 'orange',padding:0}}
             activeColor="black"
             inactiveColor="white"
             pressColor="yellow"
@@ -209,17 +235,18 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   oddItem: {
-    flex: 1,
-    flexDirection: 'column',
-    alignItems: 'stretch',
-    marginHorizontal: 10,
+    width: '26%',
+    marginBottom: 0,
+    paddingBottom:10,
   },
+
   oddHeader: {
     backgroundColor: '#737373',
     padding: 2,
     alignItems: 'center',
     borderBottomLeftRadius: 8,
     borderBottomRightRadius: 8,
+    marginBottom: 0,
   },
   oddLabel: {
     fontSize: 10,
@@ -227,7 +254,6 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   oddBody: {
-    backgroundColor: 'white',
     padding: 2,
     alignItems: 'center',
     borderTopLeftRadius: 8,

@@ -1,12 +1,13 @@
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
-
+import { CouponContext } from '../context/CouponContext';
 export default function ScheduleScreen() {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const now = new Date();
+  const { addToCoupon, coupon } = useContext(CouponContext);
   useEffect(() => {
     fetch('https://httpsflaskexample-frei2y7aaa-uc.a.run.app/details')
       .then((res) => res.json())
@@ -86,28 +87,100 @@ export default function ScheduleScreen() {
             <Text style={styles.teams}>⚽ {item.Taraflar}</Text>
             <View style={styles.oddContainer}>
               <View style={styles.oddCard}>
-                <View style={styles.oddBody}>
-                  <Text style={styles.oddValue}>{item["Maç Sonucu"]?.["1"] || "N/A"}</Text>
-                </View>
-                <View style={styles.oddHeader}>
-                  <Text style={styles.oddLabel}>MS 1</Text>
-                </View>
+                <Pressable
+                  onPress={() => {
+                    // Kupona ekleme
+                    const selectedOdd = {
+                      id: item.id,
+                      Taraflar: item.Taraflar,
+                      iddaa:"Maç Sonucu 1",
+                      Oran: item["Maç Sonucu"]?.["1"] || "-",
+                    };
+                    addToCoupon(selectedOdd);
+                  }}
+                >
+                  <View
+                    style={[
+                      styles.oddBody,
+                      {
+                        backgroundColor: coupon.find(
+                          (c) => c.id === item.id && c.iddaa === "Maç Sonucu 1"
+                        )
+                          ? "green"
+                          : "white",
+                      },
+                    ]}
+                  >
+                    <Text style={styles.oddValue}>{item["Maç Sonucu"]?.["1"] || "-"}</Text>
+                  </View>
+                  <View style={styles.oddHeader}>
+                    <Text style={styles.oddLabel}>MS 1</Text>
+                  </View>
+                </Pressable>
               </View>
               <View style={styles.oddCard}>
-                <View style={styles.oddBody}>
-                  <Text style={styles.oddValue}>{item["Maç Sonucu"]?.["X"] || "N/A"}</Text>
-                </View>
-                <View style={styles.oddHeader}>
-                  <Text style={styles.oddLabel}>MS X</Text>
-                </View>
+                <Pressable
+                    onPress={() => {
+                      // Kupona ekleme
+                      const selectedOdd = {
+                        id: item.id,
+                        Taraflar: item.Taraflar,
+                        iddaa:"Maç Sonucu X",
+                        Oran: item["Maç Sonucu"]?.["X"] || "-",
+                      };
+                      addToCoupon(selectedOdd);
+                    }}
+                  >
+                  <View
+                    style={[
+                      styles.oddBody,
+                      {
+                        backgroundColor: coupon.find(
+                          (c) => c.id === item.id && c.iddaa === "Maç Sonucu X"
+                        )
+                          ? "green"
+                          : "white",
+                      },
+                    ]}
+                  >
+                    <Text style={styles.oddValue}>{item["Maç Sonucu"]?.["X"] || "-"}</Text>
+                  </View>
+                  <View style={styles.oddHeader}>
+                    <Text style={styles.oddLabel}>MS X</Text>
+                  </View>
+                </Pressable>
               </View>
               <View style={styles.oddCard}>
-                <View style={styles.oddBody}>
-                  <Text style={styles.oddValue}>{item["Maç Sonucu"]?.["2"] || "N/A"}</Text>
-                </View>
-                <View style={styles.oddHeader}>
-                  <Text style={styles.oddLabel}>MS 2</Text>
-                </View>
+              <Pressable
+                    onPress={() => {
+                      // Kupona ekleme
+                      const selectedOdd = {
+                        id: item.id,
+                        Taraflar: item.Taraflar,
+                        iddaa:"Maç Sonucu 2",
+                        Oran: item["Maç Sonucu"]?.["2"] || "-",
+                      };
+                      addToCoupon(selectedOdd);
+                    }}
+                  >
+                  <View
+                    style={[
+                      styles.oddBody,
+                      {
+                        backgroundColor: coupon.find(
+                          (c) => c.id === item.id && c.iddaa === "Maç Sonucu 2"
+                        )
+                          ? "green"
+                          : "white",
+                      },
+                    ]}
+                  >
+                    <Text style={styles.oddValue}>{item["Maç Sonucu"]?.["2"] || "-"}</Text>
+                  </View>
+                  <View style={styles.oddHeader}>
+                    <Text style={styles.oddLabel}>MS 2</Text>
+                  </View>
+                </Pressable>
               </View>
             </View>
           </View>
