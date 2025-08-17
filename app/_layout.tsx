@@ -8,7 +8,8 @@ export default function RootLayout() {
         headerShown:false
       }} />
       <Stack.Screen name="matchDetail/[key]" options={{
-        title:"Match Detail"
+        title:"Match Detail",
+        headerShown:false
       }} />
     </Stack>
   );

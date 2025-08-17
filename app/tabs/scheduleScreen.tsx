@@ -2,21 +2,19 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 
-type ScheduleItem = { id: string; title: string };
-
 export default function ScheduleScreen() {
-  const [data, setData] = useState<ScheduleItem[]>([]);
+  const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-
+  const now = new Date();
   useEffect(() => {
     fetch('https://httpsflaskexample-frei2y7aaa-uc.a.run.app/details')
       .then((res) => res.json())
       .then((json) => {
         // Object'ten array oluştur
-        const arr: ScheduleItem[] = Object.entries(json).map(([id, title]) => ({
+        const arr = Object.entries(json).map(([id, item]: [string, any]) => ({
           id,
-          title: String(title),
+          ...item
         }));
         setData(arr);
         setLoading(false);
@@ -35,37 +33,85 @@ export default function ScheduleScreen() {
     );
   }
 
+  
+  const parseTurkishDate = (dateStr: string, timeStr: string): Date => {
+    const [day, month, year] = dateStr.split(".").map(Number);
+    const [hour, minute] = timeStr.split(":").map(Number);
+    return new Date(year, month - 1, day, hour, minute);
+  };
+  
+  const filteredData = data.filter((item) => {
+    const matchDate = parseTurkishDate(item.Tarih, item.Saat);
+    return matchDate > now;
+  });
+  const formatDate = (tarih: string, saat: string): string => {
+    const date = parseTurkishDate(tarih, saat);
+  
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+    const tomorrow = new Date();
+    tomorrow.setDate(today.getDate() + 1);
+  
+    const isSameDay = (a: Date, b: Date) =>
+      a.getDate() === b.getDate() &&
+      a.getMonth() === b.getMonth() &&
+      a.getFullYear() === b.getFullYear();
+  
+    if (isSameDay(date, today)) return `Bugün ${saat}`;
+    if (isSameDay(date, tomorrow)) return `Yarın ${saat}`;
+    if (isSameDay(date, yesterday)) return `Dün ${saat}`;
+  
+    return `${tarih} ${saat}`;
+  };
+  
+  
+
   return (
-    <FlatList<ScheduleItem>
-      data={data}
+    <FlatList
+      data={filteredData}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
-        
-        
         <Pressable
-            style={styles.card}
-            onPress={() =>
-                router.push({ pathname: '/matchDetail/[key]' as any, params: { key: item.id } })
-        }
+          style={styles.card}
+          onPress={() =>
+            router.push({ pathname: '/matchDetail/[key]' as any, params: { key: item.id } })
+          }
         >
-            <View style={styles.cardHeader}>
-                <Text style={styles.league}>{item.title.split("Maç Detayı - ")[1]}</Text>
-            </View>
-            <View style={styles.cardBody}>
-                <Text style={styles.title}>{item.title.split("Maç Detayı -")[0]}</Text>
-                <View style={styles.oddContainer}>
-                <View style={styles.oddCard}>
-                        <View style={styles.oddBody}>
-                            <Text style={styles.title}>1.56</Text>
-                        </View>
-                        <View style={styles.oddHeader}>
-                            <Text style={{fontSize: 14,fontWeight: '500',color:"white"}}>MS 0</Text>
-                        </View>
-                    </View>
+          <View style={styles.cardHeader}>
+            <Text style={styles.league}>{item.Lig}</Text>
+            <Text style={styles.date}>{formatDate(item.Tarih, item.Saat)}</Text>
+          </View>
+          <View style={styles.cardBody}>
+            <Text style={styles.teams}>⚽ {item.Taraflar}</Text>
+            <View style={styles.oddContainer}>
+              <View style={styles.oddCard}>
+                <View style={styles.oddBody}>
+                  <Text style={styles.oddValue}>{item["Maç Sonucu"]?.["1"] || "N/A"}</Text>
                 </View>
+                <View style={styles.oddHeader}>
+                  <Text style={styles.oddLabel}>MS 1</Text>
+                </View>
+              </View>
+              <View style={styles.oddCard}>
+                <View style={styles.oddBody}>
+                  <Text style={styles.oddValue}>{item["Maç Sonucu"]?.["X"] || "N/A"}</Text>
+                </View>
+                <View style={styles.oddHeader}>
+                  <Text style={styles.oddLabel}>MS X</Text>
+                </View>
+              </View>
+              <View style={styles.oddCard}>
+                <View style={styles.oddBody}>
+                  <Text style={styles.oddValue}>{item["Maç Sonucu"]?.["2"] || "N/A"}</Text>
+                </View>
+                <View style={styles.oddHeader}>
+                  <Text style={styles.oddLabel}>MS 2</Text>
+                </View>
+              </View>
             </View>
+          </View>
         </Pressable>
-        
       )}
     />
   );
@@ -92,56 +138,69 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     overflow: 'hidden',
   },
-  title: {
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  cardHeader:{
+  cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 6,
-    backgroundColor: '#004080', // header üst kısmının arkaplan rengi
-    paddingVertical: 10,
-    paddingHorizontal: 12,
+    alignItems: 'center',
+    backgroundColor: '#004080',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
   },
   league: {
     fontSize: 14,
     fontWeight: '600',
     color: '#ffffff',
-    backgroundColor: '#004080',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
+    flex: 1,
+  },
+  date: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#ffffff',
   },
   cardBody: {
-    
-    backgroundColor: '#fff', // card içeriği beyaz
+    backgroundColor: '#fff',
     padding: 12,
   },
+  teams: {
+    fontSize: 15,
+    fontWeight: '600',
+    marginBottom: 5,
+    textAlign: 'left',
+  },
   oddContainer: {
-    flexDirection: 'row', // kartları yan yana diz
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   oddCard: {
-    flex: 1, // kartlar eşit genişlikte
-    flexDirection: 'column', // header ve body alt alta
-    alignItems: 'stretch', // child genişlikleri kart genişliğine eşit
-    marginHorizontal: 5, // isteğe bağlı küçük boşluk
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    marginHorizontal: 20,
   },
   oddHeader: {
     backgroundColor: '#737373',
-    padding: 10,
-    alignItems: 'center', // yazıyı ortala
-    borderWidth:0,
-    borderBottomLeftRadius:15,
-    borderBottomRightRadius:15,
+    padding: 0,
+    alignItems: 'center',
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
+  },
+  oddLabel: {
+    fontSize: 10,
+    fontWeight: '900',
+    color: 'white',
   },
   oddBody: {
     backgroundColor: 'white',
-    padding: 10,
-    alignItems: 'center', // yazıyı ortala
-    borderTopLeftRadius:15,
-    borderTopRightRadius:15,
-    borderWidth:1,
+    padding: 2,
+    alignItems: 'center',
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
-
+  oddValue: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#333',
+  },
 });
