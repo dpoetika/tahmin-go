@@ -1,10 +1,30 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import { CouponContext } from "../context/CouponContext";
 
 
 const couponScreen = () => {
   const { coupon, removeFromCoupon } = useContext(CouponContext);
+  const [loading, setLoading] = useState(true);
+  
+  const postCoupons = ()=> {
+    console.log(coupon)
+    fetch('https://httpsflaskexample-frei2y7aaa-uc.a.run.app/coupons', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: 'Ahmet',
+        coupons:coupon
+      })
+    })
+      .then(res => res.json())
+      .then(json => {
+        console.log('POST cevabı:', json);
+      })
+      .catch(err => console.error(err));
+  };
 
   return (
     <View style={{ flex: 1, padding: 20 }}>
@@ -31,7 +51,14 @@ const couponScreen = () => {
             </View>
           )}
         />
+        
       )}
+      <Pressable
+        style={[styles.removeButton,{backgroundColor:"green"}]}
+        onPress={() => postCoupons()}
+      >
+        <Text>OYNA</Text>
+      </Pressable>
     </View>
   );
 }

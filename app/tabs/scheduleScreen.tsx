@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import React, { useContext, useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { CouponContext } from '../context/CouponContext';
+
 export default function ScheduleScreen() {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -14,11 +15,12 @@ export default function ScheduleScreen() {
       .then((json) => {
         // Object'ten array oluştur
         const arr = Object.entries(json).map(([id, item]: [string, any]) => ({
-          id,
+          id, 
           ...item
         }));
         setData(arr);
         setLoading(false);
+        console.log(data)
       })
       .catch((err) => {
         console.error(err);
@@ -70,7 +72,7 @@ export default function ScheduleScreen() {
 
   return (
     <FlatList
-      data={filteredData}
+      data={data}//filtered data olacak
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
         <Pressable
