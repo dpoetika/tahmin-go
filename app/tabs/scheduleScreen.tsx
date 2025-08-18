@@ -95,8 +95,9 @@ export default function ScheduleScreen() {
                     const selectedOdd = {
                       id: item.id,
                       Taraflar: item.Taraflar,
-                      iddaa:"Maç Sonucu 1",
+                      iddaa:"Maç Sonucu",
                       Oran: item["Maç Sonucu"]?.["1"] || "-",
+                      Tahmin:"1",
                     };
                     addToCoupon(selectedOdd);
                   }}
@@ -106,7 +107,7 @@ export default function ScheduleScreen() {
                       styles.oddBody,
                       {
                         backgroundColor: coupon.find(
-                          (c) => c.id === item.id && c.iddaa === "Maç Sonucu 1"
+                          (c) => c.id === item.id && c.iddaa === "Maç Sonucu" && c.Tahmin === "1"
                         )
                           ? "green"
                           : "white",
@@ -127,8 +128,9 @@ export default function ScheduleScreen() {
                       const selectedOdd = {
                         id: item.id,
                         Taraflar: item.Taraflar,
-                        iddaa:"Maç Sonucu X",
+                        iddaa:"Maç Sonucu",
                         Oran: item["Maç Sonucu"]?.["X"] || "-",
+                        Tahmin:"X",
                       };
                       addToCoupon(selectedOdd);
                     }}
@@ -138,7 +140,7 @@ export default function ScheduleScreen() {
                       styles.oddBody,
                       {
                         backgroundColor: coupon.find(
-                          (c) => c.id === item.id && c.iddaa === "Maç Sonucu X"
+                          (c) => c.id === item.id && c.iddaa === "Maç Sonucu" && c.Tahmin === "X"
                         )
                           ? "green"
                           : "white",
@@ -159,8 +161,9 @@ export default function ScheduleScreen() {
                       const selectedOdd = {
                         id: item.id,
                         Taraflar: item.Taraflar,
-                        iddaa:"Maç Sonucu 2",
+                        iddaa:"Maç Sonucu",
                         Oran: item["Maç Sonucu"]?.["2"] || "-",
+                        Tahmin:"2",
                       };
                       addToCoupon(selectedOdd);
                     }}
@@ -170,7 +173,7 @@ export default function ScheduleScreen() {
                       styles.oddBody,
                       {
                         backgroundColor: coupon.find(
-                          (c) => c.id === item.id && c.iddaa === "Maç Sonucu 2"
+                          (c) => c.id === item.id && c.iddaa === "Maç Sonucu" && c.Tahmin === "2"
                         )
                           ? "green"
                           : "white",

@@ -6,6 +6,7 @@ export type Match = {
   Taraflar: string;
   iddaa:string;
   Oran: string;
+  Tahmin: string;
 };
 
 type CouponContextType = {

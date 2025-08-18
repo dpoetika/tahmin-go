@@ -19,7 +19,7 @@ const couponScreen = () => {
         coupons:coupon
       })
     })
-      .then(res => res.json())
+      .then(res => res)
       .then(json => {
         console.log('POST cevabı:', json);
       })
@@ -39,7 +39,7 @@ const couponScreen = () => {
           renderItem={({ item }) => (
             <View style={styles.couponCard}>
               <Text style={styles.teams}>{item.Taraflar}</Text>
-              <Text style={styles.odd}>{item.iddaa}</Text>
+              <Text style={styles.odd}>{item.iddaa} {item.Tahmin}</Text>
               <Text style={styles.odd}>Oran: {item.Oran}</Text>
 
               <Pressable

@@ -107,8 +107,9 @@ export default function MatchDetailScreen() {
                       const selectedOdd = {
                         id: matchKey,
                         Taraflar: data.Taraflar,
-                        iddaa:item.title.replace("_","/") + " "+ oddKey,
+                        iddaa:item.title.replace("_","/"),
                         Oran: oddValue || "-",
+                        Tahmin:oddKey,
                       };
                       addToCoupon(selectedOdd);
                     }}
@@ -118,7 +119,7 @@ export default function MatchDetailScreen() {
                         styles.oddBody,
                         {
                           backgroundColor: coupon.find(
-                            (c) => c.id === matchKey && c.iddaa === item.title.replace("_","/") + " "+ oddKey
+                            (c) => c.id === matchKey && c.iddaa === item.title.replace("_","/") && c.Tahmin === oddKey
                           )
                             ? "green"
                             : "white",
