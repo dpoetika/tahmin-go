@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import React, { useContext, useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
-import { CouponContext } from '../context/CouponContext';
+import { CouponContext } from '../hooks/CouponContext';
 
 export default function ScheduleScreen() {
   const [data, setData] = useState<any[]>([]);
@@ -20,7 +20,7 @@ export default function ScheduleScreen() {
         }));
         setData(arr);
         setLoading(false);
-        console.log(data)
+        
       })
       .catch((err) => {
         console.error(err);
@@ -82,7 +82,7 @@ export default function ScheduleScreen() {
           }
         >
           <View style={styles.cardHeader}>
-            <Text style={styles.league}>{item.Lig}</Text>
+            <Text style={styles.league}>{item.Lig.replace("2025/2026","")}</Text>
             <Text style={styles.date}>{formatDate(item.Tarih, item.Saat)}</Text>
           </View>
           <View style={styles.cardBody}>

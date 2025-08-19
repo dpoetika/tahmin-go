@@ -1,8 +1,8 @@
 import { useLocalSearchParams } from 'expo-router';
 import React, { useContext, useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, FlatList, Image, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { TabBar, TabView } from 'react-native-tab-view';
-import { CouponContext } from '../context/CouponContext';
+import { CouponContext } from '../hooks/CouponContext';
 
 export default function MatchDetailScreen() {
   const params = useLocalSearchParams<{ key: string }>();
@@ -68,6 +68,7 @@ export default function MatchDetailScreen() {
     title: key,
     odds: value
   })) : [];
+  
 
   // Dinamik renderScene fonksiyonu
   const renderScene = ({ route }: { route: { key: string } }) => {
@@ -109,7 +110,7 @@ export default function MatchDetailScreen() {
                         Taraflar: data.Taraflar,
                         iddaa:item.title.replace("_","/"),
                         Oran: oddValue || "-",
-                        Tahmin:oddKey,
+                        Tahmin:oddKey.replace("_","/"),
                       };
                       addToCoupon(selectedOdd);
                     }}
@@ -119,7 +120,7 @@ export default function MatchDetailScreen() {
                         styles.oddBody,
                         {
                           backgroundColor: coupon.find(
-                            (c) => c.id === matchKey && c.iddaa === item.title.replace("_","/") && c.Tahmin === oddKey
+                            (c) => c.id === matchKey && c.iddaa === item.title.replace("_","/") && c.Tahmin === oddKey.replace("_","/")
                           )
                             ? "green"
                             : "white",
@@ -146,7 +147,19 @@ export default function MatchDetailScreen() {
       <View style={styles.fixedHeader}>
         <Text style={styles.headerTitle}>{data.Lig}</Text>
         <Text style={styles.headerTeams}>{data.Taraflar}</Text>
-        <Text style={styles.headerDate}>{data.Tarih}</Text>
+        <View style={{flexDirection:"row",justifyContent:"space-between",}}>
+          <Image 
+            source={{ uri: data.Logolar.Evsahibi.replace("https","https:") }}
+            style={{ width: 50, height: 50 }}
+          />
+          <Text style={styles.headerDate}>{data.Tarih}</Text>
+          <Image 
+            source={{ uri: data.Logolar.Deplasman.replace("https","https:") }}
+            style={{ width: 50, height: 50 }}
+          />
+        </View>
+        <Text style={styles.headerTeams}>{data.Saat}</Text>
+        
       </View>
       
       <TabView

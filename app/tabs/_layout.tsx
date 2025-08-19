@@ -1,9 +1,11 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from 'expo-router';
 import * as React from 'react';
+import UserHeader from "../components/userHeader";
 export default function TabLayout() {
   return (
-      <Tabs>
+      <Tabs
+      screenOptions={{headerRight:()=><UserHeader></UserHeader>}}>
         <Tabs.Screen name='homeScreen'
         options={{
           title:"Home Screen",
@@ -35,11 +37,11 @@ export default function TabLayout() {
         </Tabs.Screen>
 
 
-        <Tabs.Screen name='settingsScreen'
+        <Tabs.Screen name='profileScreen'
         options={{
-          title:"Settings",
+          title:"Profile",
           tabBarIcon:({color,size})=>(
-            <Ionicons name='settings' size={size} color={color}/>
+            <Ionicons name="person-circle-outline" size={size} color={color} />
           )
         }}
         >
