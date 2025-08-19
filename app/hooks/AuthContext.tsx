@@ -1,21 +1,18 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { createContext, useContext, useEffect, useState } from 'react';
-
-export type User = {
-  id: string;
-  name: string;
-  email: string;
+import { Alert } from 'react-native';
+type User = {
+  username: string;
   balance:string;
-  avatar?: string;
-  joinDate?: string;
+  coupons:any[];
 };
 
 type AuthContextType = {
   user: User | null;
   isLoading: boolean;
   isLoggedIn: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   updateUser: (userData: Partial<User>) => void;
 };
@@ -61,37 +58,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loadUser();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (username: string, password: string) => {
     try {
-      // Örnek authentication (gerçek projede API çağrısı yapılmalı)
-      if (email === 'test@test.com' && password === '123456') {
-        const fakeToken = 'fake-jwt-token';
-        const userData: User = {
-          id: '1',
-          name: 'Test Kullanıcı',
-          email: email,
-          balance:"200",
-          avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
-          joinDate: new Date().toLocaleDateString('tr-TR')
-        };
+      const response = await fetch('https://httpsflaskexample-frei2y7aaa-uc.a.run.app/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: username,
+          password: password,
+        }),
+      });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const responseData = await response.json();
+
+      // Sunucudan gelen verilerle userData oluştur
+      const userData: User = {
+        username: responseData.username || username,
+        balance: responseData.balance,
+        coupons:responseData.coupons,
+      };
+      const fakeToken = 'fake-jwt-token';
         await Promise.all([
           AsyncStorage.setItem('userToken', fakeToken),
           AsyncStorage.setItem('userData', JSON.stringify(userData))
         ]);
+      setUser(userData);
+      setIsLoggedIn(true);
+      router.replace('/tabs/homeScreen');
 
-        setUser(userData);
-        setIsLoggedIn(true);
-        router.replace('/tabs/homeScreen');
-      } else {
-        throw new Error('Geçersiz email veya şifre');
-      }
-    } catch (error) {
+    } catch (error:any) {
       console.error('Login error:', error);
-      throw error; // Hata yukarı fırlatılıyor
+      Alert.alert('Login Failed', error.message);
     }
   };
-
+        
   const logout = async () => {
     try {
       await AsyncStorage.multiRemove(['userToken', 'userData']);

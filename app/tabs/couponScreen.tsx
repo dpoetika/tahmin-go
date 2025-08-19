@@ -18,9 +18,9 @@ const couponScreen = () => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        username: 'Ahmet',
+        username: user?.username,
         coupons:coupon,
-        bet:amount,
+        betAmount:amount,
       })
     }).then(()=>{
       const userData = {

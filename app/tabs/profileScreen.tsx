@@ -2,16 +2,16 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { useAuth } from '../hooks/AuthContext';
 
+
+
 export default function ProfileScreen() {
   const { user, logout, isLoading, updateUser } = useAuth();
-
+  console.log(user?.coupons)
   // Kullanıcı verilerini context'ten al
   const profileData = {
-    name: user?.name || "Misafir Kullanıcı",
-    email: user?.email || "email@example.com",
+    name: user?.username || "Misafir Kullanıcı",
     balance:user?.balance || 200,
-    joinDate: user?.joinDate || "Bilinmiyor",
-    avatar: user?.avatar || "https://randomuser.me/api/portraits/men/1.jpg",
+    avatar: "https://randomuser.me/api/portraits/men/1.jpg",
     stats: {
       posts: 24,
       followers: 156,
@@ -20,25 +20,18 @@ export default function ProfileScreen() {
     bio: "React Native geliştiricisi ve teknoloji meraklısı"
   };
 
-  const handleUpdateAvatar = () => {
-    // Avatar güncelleme örneği
-    updateUser({ 
-      avatar: "https://randomuser.me/api/portraits/women/1.jpg" 
-    });
-  };
 
   return (
     <View style={styles.container}>
       {/* Profil Başlık */}
       <View style={styles.profileHeader}>
-        <Pressable onPress={handleUpdateAvatar}>
+
           <Image 
             source={{ uri: profileData.avatar }} 
             style={styles.avatar}
           />
-        </Pressable>
+        
         <Text style={styles.name}>{profileData.name}</Text>
-        <Text style={styles.email}>{profileData.email}</Text>
       </View>
 
       {/* İstatistikler */}
@@ -56,20 +49,7 @@ export default function ProfileScreen() {
           <Text style={styles.statLabel}>Takip</Text>
         </View>
       </View>
-
-      {/* Kullanıcı Bilgileri */}
-      <View style={styles.infoContainer}>
-        <View style={styles.infoItem}>
-          <Ionicons name="calendar-outline" size={20} color="#666" />
-          <Text style={styles.infoText}>Katılma Tarihi: {profileData.joinDate}</Text>
-        </View>
-        
-        <View style={styles.infoItem}>
-          <Ionicons name="document-text-outline" size={20} color="#666" />
-          <Text style={styles.infoText}>Hakkımda: {profileData.bio}</Text>
-        </View>
-      </View>
-
+     
       {/* Çıkış Yap Butonu */}
       <Pressable 
         style={({ pressed }) => [
@@ -111,10 +91,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 5,
   },
-  email: {
-    fontSize: 16,
-    color: '#666',
-  },
   statsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -134,19 +110,6 @@ const styles = StyleSheet.create({
   statLabel: {
     fontSize: 14,
     color: '#666',
-  },
-  infoContainer: {
-    marginVertical: 15,
-  },
-  infoItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  infoText: {
-    marginLeft: 10,
-    fontSize: 16,
-    color: '#444',
   },
   logoutButton: {
     flexDirection: 'row',
