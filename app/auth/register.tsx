@@ -1,44 +1,60 @@
+import { BASE_URL } from "@env";
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useAuth } from '../hooks/AuthContext';
-
-export default function LoginScreen() {
+export default function RegisterScreen() {
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState('');
-  const { login, isLoading } = useAuth();
+  const { isLoading } = useAuth();
   const router = useRouter();   
-  const [loading, setisloading] = useState(false)
-  const handleRegister = ()=> {
-    setisloading(true)
-    fetch('https://httpsflaskexample-frei2y7aaa-uc.a.run.app/register', {
-      method: 'POST',
+  const [isloading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  
+  const handleRegister = () => {
+    setIsLoading(true);
+    setError(""); // önceki hatayı sıfırla
+
+    fetch(`${BASE_URL}/auth/register`, {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        username:username,
-        password:password,
+        username,
+        password,
+      }),
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          // sunucudan hata mesajı varsa onu yakala
+          const data = await res.json().catch(() => ({}));
+          console.log(data.error||data.message)
+          throw new Error(data.error||data.message || "Kayıt başarısız oldu");
+        }
+        return res.json();
       })
-    })
-    .then(()=>{
-        setisloading(false)
-        router.push({ pathname: './login' as any})
-    })
-    .catch(err => console.error(err));
+      .then(() => {
+        router.push("./login");
+      })
+      .catch((err) => {
+        setError(err.error||err.message);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
-  if (loading) {
-      return (
-        <View style={styles.loading}>
-          <ActivityIndicator size="large" color="#0000ff" />
-        </View>
-      );
-    }
-
+  if (isloading) {
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
   return (
     <View style={{ flex: 1, justifyContent: 'center', padding: 20 }}>
-      <Text style={{ fontSize: 24, marginBottom: 20, textAlign: 'center' }}>Login</Text>
+      <Text style={{ fontSize: 24, marginBottom: 20, textAlign: 'center' }}>Register</Text>
       
       <TextInput
         style={{ borderWidth: 1, padding: 10, marginBottom: 15, borderRadius: 5 }}
@@ -62,7 +78,7 @@ export default function LoginScreen() {
         disabled={isLoading}
       >
         <Text style={{ color: 'white', textAlign: 'center' }}>
-          {isLoading ? 'Loading...' : 'Login'}
+          {isLoading ? 'Loading...' : 'Register'}
         </Text>
       </TouchableOpacity>
 
@@ -70,6 +86,7 @@ export default function LoginScreen() {
       <Text style={{ marginTop: 20, color: 'gray', textAlign: 'center' }}>
         Test kullanıcısı: test@test.com / 123456
       </Text>
+      {error ? <Text style={styles.error}>{error}</Text> : null}
     </View>
   );
 }
@@ -81,4 +98,5 @@ loading: {
     justifyContent: 'center',
     alignItems: 'center',
   },
+  error: { marginTop: 10, color: "red", fontSize: 16 },
 })

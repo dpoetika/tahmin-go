@@ -1,35 +1,74 @@
+import { BASE_URL } from '@env';
 import { FontAwesome } from '@expo/vector-icons'; // Expo kullanıyorsan
 import React, { useContext, useEffect, useState } from "react";
-import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { useAuth } from '../hooks/AuthContext';
 import { CouponContext } from "../hooks/CouponContext";
 
 const couponScreen = () => {
   const { coupon, removeFromCoupon,resetCoupon } = useContext(CouponContext);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [error, seterror] = useState("")
   const [odd, setOdd] = useState(1);
   const [bet, setBet] = useState(1);
   const {updateUser,user} = useAuth()
   
-  const postCoupons = (amount:number)=> {
-    fetch('https://httpsflaskexample-frei2y7aaa-uc.a.run.app/coupons', {
-      method: 'POST',
+  const postCoupons = (amount: number) => {
+    seterror("");
+    setLoading(true);
+
+    fetch(`${BASE_URL}/coupons/`, {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${user?.token}`,
       },
       body: JSON.stringify({
         username: user?.username,
-        coupons:coupon,
-        betAmount:amount,
-      })
-    }).then(()=>{
-      const userData = {
-        balance:String(Number(user?.balance)-amount),
-      };
-      updateUser(userData)
-      resetCoupon()
+        coupons: coupon,
+        betAmount: amount,
+      }),
     })
-      .catch(err => console.error(err));
+      .then(async (res) => {
+        if (!res.ok) {
+          const errData = await res.json();
+          console.log(errData);
+          throw new Error(errData.error || "Bir hata oluştu");
+        }
+        return res.json();
+      })
+      .then(() => {
+        const newKey = `-${Date.now().toString(36)}`;
+
+        // 👇 coupon'u düzgün obje haline getiriyoruz
+        const newCoupon = {
+          betAmount: amount,
+          matches: coupon, // senin CouponContext’ten gelen array
+          odd: odd,
+        };
+
+        const userData:any = {
+          balance: String(Number(user?.balance) - amount),
+          coupons: {
+            ...user?.coupons,
+            [newKey]: newCoupon, // ✅ object ekleniyor
+          },
+        };
+
+        console.log("-----");
+        console.log(userData);
+        console.log("-----");
+
+        updateUser(userData);
+        resetCoupon();
+      })
+      .catch((err) => {
+        console.error(err);
+        seterror(err.message);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
   useEffect(() => {
     changeTotalWin();
@@ -38,10 +77,19 @@ const couponScreen = () => {
     let totalOdd = 1;
     for (let index = 0; index < coupon.length; index++) {
       const element = coupon[index];
-      totalOdd *= Number(element.Oran);
+      totalOdd *= Number(element.oran);
     }
     setOdd(totalOdd);
   };
+
+
+  if (loading) {
+        return (
+          <View style={styles.loading}>
+            <ActivityIndicator size="large" color="#0000ff" />
+          </View>
+        );
+      }
   
 
   return (
@@ -54,7 +102,7 @@ const couponScreen = () => {
         
       <FlatList
         data={coupon}
-        keyExtractor={(item) => item.id + item.iddaa + item.Tahmin}
+        keyExtractor={(item) => item.id + item.iddaa + item.tahmin}
         contentContainerStyle={{ padding: 16 }}
         renderItem={({ item }) => (
           <View style={styles.couponCard}>
@@ -67,16 +115,16 @@ const couponScreen = () => {
             </Pressable>
 
             {/* Maç Tarafları */}
-            <Text style={styles.teams}>{item.Taraflar}</Text>
+            <Text style={styles.teams}>{item.taraflar}</Text>
 
             {/* İddaa ve Tahmin */}
             <View style={styles.row}>
               <Text style={styles.iddaa}>{item.iddaa}</Text>
-              <Text style={styles.tahmin}>{item.Tahmin}</Text>
+              <Text style={styles.tahmin}>{item.tahmin}</Text>
             </View>
 
             {/* Oran */}
-            <Text style={styles.odd}>Oran: <Text style={styles.oddValue}>{item.Oran}</Text></Text>
+            <Text style={styles.odd}>Oran: <Text style={styles.oddValue}>{item.oran}</Text></Text>
           </View>
         )}
       />
@@ -115,6 +163,7 @@ const couponScreen = () => {
         </Pressable>
       </View>
     </View>
+      {error ? <Text style={styles.error}>{error}</Text> : null}
     </View>
   );
 }
@@ -123,6 +172,13 @@ const couponScreen = () => {
 export default couponScreen
 
 const styles = StyleSheet.create({
+  loading: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  error: { marginTop: 10, color: "red", fontSize: 16 },
+
   couponCard: {
     backgroundColor: '#2a2a2a',
     padding: 16,

@@ -1,23 +1,33 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useAuth } from '../hooks/AuthContext';
 
 export default function LoginScreen() {
-  const [username, setUsernme] = useState('yunuseakkaya');
-  const [password, setPassword] = useState('1234');
+  const [username, setUsernme] = useState('Yunuseakkaya');
+  const [password, setPassword] = useState('Yunus1emre!');
   const { login, isLoading } = useAuth();
   const [isloding, setisloding] = useState(false)
+  const [Error, setError] = useState("")
   const router = useRouter();   
   const handleLogin = async () => {
     try {
-
+      setisloding(true)
       await login(username, password);
     } catch (error:any) {
-      Alert.alert('Login Failed', error.message);
+      Alert.alert('Login Failed', error.error);
+      setError(error.error)
+    }finally{
+      setisloding(false)
     }
   };
-
+  if (isloding) {
+      return (
+        <View style={styles.loading}>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
+      );
+    }
   return (
     <View style={{ flex: 1, justifyContent: 'center', padding: 20 }}>
       <Text style={{ fontSize: 24, marginBottom: 20, textAlign: 'center' }}>Login</Text>
@@ -51,12 +61,11 @@ export default function LoginScreen() {
       <TouchableOpacity
         style={{ backgroundColor: '#007AFF', padding: 15, borderRadius: 5,margin:10 }}
         onPress={() =>
-            router.push({ pathname: './register' as any})
+            router.push({ pathname: '/auth/register' as any})
           }
-        disabled={isLoading}
       >
         <Text style={{ color: 'white', textAlign: 'center' }}>
-          {isLoading ? 'Loading...' : 'Register'}
+          Register
         </Text>
       </TouchableOpacity>
 
@@ -64,6 +73,16 @@ export default function LoginScreen() {
       <Text style={{ marginTop: 20, color: 'gray', textAlign: 'center' }}>
         Test kullanıcısı: test@test.com / 123456
       </Text>
+      {Error ? <Text style={styles.error}>{Error}</Text> : null}
     </View>
   );
 }
+const styles = StyleSheet.create({
+
+loading: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  error: { marginTop: 10, color: "red", fontSize: 16 },
+})

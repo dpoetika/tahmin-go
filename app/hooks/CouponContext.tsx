@@ -3,10 +3,10 @@ import React, { createContext, ReactNode, useState } from "react";
 
 export type Match = {
   id: string;
-  Taraflar: string;
+  taraflar: string;
   iddaa:string;
-  Oran: string;
-  Tahmin: string;
+  oran: string;
+  tahmin: string;
 };
 
 type CouponContextType = {
@@ -33,7 +33,7 @@ const CouponProvider = ({ children }: { children: ReactNode }) => {
   
       if (sameId) {
         if (sameId.iddaa === match.iddaa) {
-          if (sameId.Tahmin === match.Tahmin) {
+          if (sameId.tahmin === match.tahmin) {
             // Aynı iddaa ve tahmin → sil, ekleme yok
             return prev.filter((m) => m.id !== match.id);
           } else {

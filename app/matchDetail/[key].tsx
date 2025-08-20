@@ -1,3 +1,4 @@
+import { BASE_URL } from '@env';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useContext, useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
@@ -22,7 +23,7 @@ export default function MatchDetailScreen() {
   ];
 
   useEffect(() => {
-    fetch(`https://httpsflaskexample-frei2y7aaa-uc.a.run.app/details/${matchKey}`)
+    fetch(`${BASE_URL}/matches/details/${matchKey}`)
       .then((res) => res.json())
       .then((json) => {
         setData(json);
@@ -107,10 +108,10 @@ export default function MatchDetailScreen() {
                       // Kupona ekleme
                       const selectedOdd = {
                         id: matchKey,
-                        Taraflar: data.Taraflar,
+                        taraflar: data.taraflar,
                         iddaa:item.title.replace("_","/"),
-                        Oran: oddValue || "-",
-                        Tahmin:oddKey.replace("_","/"),
+                        oran: oddValue || "-",
+                        tahmin:oddKey.replace("_","/"),
                       };
                       addToCoupon(selectedOdd);
                     }}
@@ -120,7 +121,7 @@ export default function MatchDetailScreen() {
                         styles.oddBody,
                         {
                           backgroundColor: coupon.find(
-                            (c) => c.id === matchKey && c.iddaa === item.title.replace("_","/") && c.Tahmin === oddKey.replace("_","/")
+                            (c) => c.id === matchKey && c.iddaa === item.title.replace("_","/") && c.tahmin === oddKey.replace("_","/")
                           )
                             ? "green"
                             : "white",

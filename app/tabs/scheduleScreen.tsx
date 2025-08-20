@@ -1,3 +1,4 @@
+import { BASE_URL } from '@env';
 import { useRouter } from 'expo-router';
 import React, { useContext, useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -10,7 +11,7 @@ export default function ScheduleScreen() {
   const now = new Date();
   const { addToCoupon, coupon } = useContext(CouponContext);
   useEffect(() => {
-    fetch('https://httpsflaskexample-frei2y7aaa-uc.a.run.app/details')
+    fetch(`${BASE_URL}/matches/details`)
       .then((res) => res.json())
       .then((json) => {
         // Object'ten array oluştur
@@ -94,10 +95,10 @@ export default function ScheduleScreen() {
                     // Kupona ekleme
                     const selectedOdd = {
                       id: item.id,
-                      Taraflar: item.Taraflar,
+                      taraflar: item.Taraflar,
                       iddaa:"Maç Sonucu",
-                      Oran: item["Maç Sonucu"]?.["1"] || "-",
-                      Tahmin:"1",
+                      oran: item["Maç Sonucu"]?.["1"] || "-",
+                      tahmin:"1",
                     };
                     addToCoupon(selectedOdd);
                   }}
@@ -107,7 +108,7 @@ export default function ScheduleScreen() {
                       styles.oddBody,
                       {
                         backgroundColor: coupon.find(
-                          (c) => c.id === item.id && c.iddaa === "Maç Sonucu" && c.Tahmin === "1"
+                          (c) => c.id === item.id && c.iddaa === "Maç Sonucu" && c.tahmin === "1"
                         )
                           ? "green"
                           : "white",
@@ -127,10 +128,10 @@ export default function ScheduleScreen() {
                       // Kupona ekleme
                       const selectedOdd = {
                         id: item.id,
-                        Taraflar: item.Taraflar,
+                        taraflar: item.Taraflar,
                         iddaa:"Maç Sonucu",
-                        Oran: item["Maç Sonucu"]?.["X"] || "-",
-                        Tahmin:"X",
+                        oran: item["Maç Sonucu"]?.["X"] || "-",
+                        tahmin:"X",
                       };
                       addToCoupon(selectedOdd);
                     }}
@@ -140,7 +141,7 @@ export default function ScheduleScreen() {
                       styles.oddBody,
                       {
                         backgroundColor: coupon.find(
-                          (c) => c.id === item.id && c.iddaa === "Maç Sonucu" && c.Tahmin === "X"
+                          (c) => c.id === item.id && c.iddaa === "Maç Sonucu" && c.tahmin === "X"
                         )
                           ? "green"
                           : "white",
@@ -160,10 +161,10 @@ export default function ScheduleScreen() {
                       // Kupona ekleme
                       const selectedOdd = {
                         id: item.id,
-                        Taraflar: item.Taraflar,
+                        taraflar: item.Taraflar,
                         iddaa:"Maç Sonucu",
-                        Oran: item["Maç Sonucu"]?.["2"] || "-",
-                        Tahmin:"2",
+                        oran: item["Maç Sonucu"]?.["2"] || "-",
+                        tahmin:"2",
                       };
                       addToCoupon(selectedOdd);
                     }}
@@ -173,7 +174,7 @@ export default function ScheduleScreen() {
                       styles.oddBody,
                       {
                         backgroundColor: coupon.find(
-                          (c) => c.id === item.id && c.iddaa === "Maç Sonucu" && c.Tahmin === "2"
+                          (c) => c.id === item.id && c.iddaa === "Maç Sonucu" && c.tahmin === "2"
                         )
                           ? "green"
                           : "white",

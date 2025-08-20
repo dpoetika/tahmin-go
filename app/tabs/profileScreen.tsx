@@ -1,12 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { FlatList, Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { useAuth } from '../hooks/AuthContext';
 
 
 
 export default function ProfileScreen() {
   const { user, logout, isLoading, updateUser } = useAuth();
-  console.log(user?.coupons)
   // Kullanıcı verilerini context'ten al
   const profileData = {
     name: user?.username || "Misafir Kullanıcı",
@@ -22,51 +21,73 @@ export default function ProfileScreen() {
 
 
   return (
-    <View style={styles.container}>
-      {/* Profil Başlık */}
-      <View style={styles.profileHeader}>
-
-          <Image 
-            source={{ uri: profileData.avatar }} 
-            style={styles.avatar}
-          />
-        
-        <Text style={styles.name}>{profileData.name}</Text>
-      </View>
-
-      {/* İstatistikler */}
-      <View style={styles.statsContainer}>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{profileData.stats.posts}</Text>
-          <Text style={styles.statLabel}>Gönderi</Text>
-        </View>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{profileData.stats.followers}</Text>
-          <Text style={styles.statLabel}>Takipçi</Text>
-        </View>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{profileData.stats.following}</Text>
-          <Text style={styles.statLabel}>Takip</Text>
-        </View>
-      </View>
-     
-      {/* Çıkış Yap Butonu */}
-      <Pressable 
-        style={({ pressed }) => [
-          styles.logoutButton,
-          { opacity: pressed ? 0.7 : 1 }
-        ]}
-        onPress={logout}
-        disabled={isLoading}
-      >
-        <Ionicons name="exit-outline" size={20} color="white" />
-        <Text style={styles.logoutText}>
-          {isLoading ? "Çıkış Yapılıyor..." : "Çıkış Yap"}
-        </Text>
-      </Pressable>
+  <View style={styles.container}>
+    {/* Profil Başlık */}
+    <View style={styles.profileHeader}>
+      <Image 
+        source={{ uri: profileData.avatar }} 
+        style={styles.avatar}
+      />
+      <Text style={styles.name}>{profileData.name}</Text>
     </View>
-  );
-}
+
+    {/* İstatistikler */}
+    <View style={styles.statsContainer}>
+      <View style={styles.statItem}>
+        <Text style={styles.statNumber}>{profileData.stats.posts}</Text>
+        <Text style={styles.statLabel}>Gönderi</Text>
+      </View>
+      <View style={styles.statItem}>
+        <Text style={styles.statNumber}>{profileData.stats.followers}</Text>
+        <Text style={styles.statLabel}>Takipçi</Text>
+      </View>
+      <View style={styles.statItem}>
+        <Text style={styles.statNumber}>{profileData.stats.following}</Text>
+        <Text style={styles.statLabel}>Takip</Text>
+      </View>
+    </View>
+
+    {/* Kuponlar */}
+    <FlatList
+      data={Object.entries(user?.coupons || {})} // [key, value] olarak alıyoruz
+      keyExtractor={([key]) => key}
+      renderItem={({ item }) => {
+        const [key, coupon] = item;
+        return (
+          <View style={styles.couponCard}>
+            <Text style={styles.couponTitle}>Kupon #{key}</Text>
+            <Text>Bahis: {coupon.betAmount} ₺</Text>
+            <Text>Oran: {coupon.odd}</Text>
+
+            {coupon.matches.map((m: any, idx: number) => (
+              <Text key={idx} style={styles.matchText}>
+                <Text style={styles.matchText}>
+                  {m.taraflar.split(" - ")[0]} vs {m.taraflar.split(" - ")[1]} | {m.iddaa} {m.tahmin} | {m.oran}
+                </Text>
+              </Text>
+            ))}
+          </View>
+        );
+      }}
+    />
+
+    {/* Çıkış Yap Butonu */}
+    <Pressable 
+      style={({ pressed }) => [
+        styles.logoutButton,
+        { opacity: pressed ? 0.7 : 1 }
+      ]}
+      onPress={logout}
+      disabled={isLoading}
+    >
+      <Ionicons name="exit-outline" size={20} color="white" />
+      <Text style={styles.logoutText}>
+        {isLoading ? "Çıkış Yapılıyor..." : "Çıkış Yap"}
+      </Text>
+    </Pressable>
+  </View>
+  );}
+
 
 const styles = StyleSheet.create({
   container: {
@@ -126,4 +147,24 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginLeft: 10,
   },
+  couponCard: {
+  backgroundColor: "#fff",
+  padding: 12,
+  borderRadius: 10,
+  marginVertical: 8,
+  shadowColor: "#000",
+  shadowOpacity: 0.1,
+  shadowRadius: 5,
+  elevation: 3,
+},
+couponTitle: {
+  fontWeight: "bold",
+  fontSize: 16,
+  marginBottom: 6,
+},
+matchText: {
+  fontSize: 14,
+  color: "#444",
+},
+
 });

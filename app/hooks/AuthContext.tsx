@@ -1,3 +1,4 @@
+import { BASE_URL } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { createContext, useContext, useEffect, useState } from 'react';
@@ -6,6 +7,7 @@ type User = {
   username: string;
   balance:string;
   coupons:any[];
+  token:string,
 };
 
 type AuthContextType = {
@@ -59,45 +61,50 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = async (username: string, password: string) => {
-    try {
-      const response = await fetch('https://httpsflaskexample-frei2y7aaa-uc.a.run.app/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: username,
-          password: password,
-        }),
-      });
+  try {
+    const response = await fetch(`${BASE_URL}/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username,
+        password,
+      }),
+    });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const responseData = await response.json();
-
-      // Sunucudan gelen verilerle userData oluştur
-      const userData: User = {
-        username: responseData.username || username,
-        balance: responseData.balance,
-        coupons:responseData.coupons,
-      };
-      const fakeToken = 'fake-jwt-token';
-        await Promise.all([
-          AsyncStorage.setItem('userToken', fakeToken),
-          AsyncStorage.setItem('userData', JSON.stringify(userData))
-        ]);
-      setUser(userData);
-      setIsLoggedIn(true);
-      router.replace('/tabs/homeScreen');
-
-    } catch (error:any) {
-      console.error('Login error:', error);
-      Alert.alert('Login Failed', error.message);
+    // ❌ burada then kullanma
+    if (!response.ok) {
+      const res: any = await response.json();   // ✅ await ile çöz
+      throw new Error(res.error || 'Login failed');
     }
-  };
-        
+
+    const responseData = await response.json();
+    console.log(responseData);
+
+    // Sunucudan gelen verilerle userData oluştur
+    const userData: User = {
+      username: responseData.username || username,
+      balance: responseData.balance,
+      coupons: responseData.coupons,
+      token: responseData.token,
+    };
+
+    const fakeToken = 'fake-jwt-token';
+    await Promise.all([
+      AsyncStorage.setItem('userToken', fakeToken),
+      AsyncStorage.setItem('userData', JSON.stringify(userData)),
+    ]);
+
+    setUser(userData);
+    setIsLoggedIn(true);
+    router.replace('/tabs/homeScreen');
+  } catch (error: any) {
+    console.error('Login error:', error);
+    Alert.alert('Login Failed', error.message);
+  }
+};
+
   const logout = async () => {
     try {
       await AsyncStorage.multiRemove(['userToken', 'userData']);
