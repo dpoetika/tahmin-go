@@ -16,7 +16,7 @@ const couponScreen = () => {
   const postCoupons = (amount: number) => {
     seterror("");
     setLoading(true);
-
+    const newKey = `-${Date.now().toString(36)}`;
     fetch(`${BASE_URL}/coupons/`, {
       method: "POST",
       headers: {
@@ -27,6 +27,7 @@ const couponScreen = () => {
         username: user?.username,
         coupons: coupon,
         betAmount: amount,
+        id:newKey,
       }),
     })
       .then(async (res) => {
@@ -38,7 +39,7 @@ const couponScreen = () => {
         return res.json();
       })
       .then(() => {
-        const newKey = `-${Date.now().toString(36)}`;
+        
 
         // 👇 coupon'u düzgün obje haline getiriyoruz
         const newCoupon = {
