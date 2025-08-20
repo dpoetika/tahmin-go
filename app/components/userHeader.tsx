@@ -6,8 +6,8 @@ export default function UserHeader() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.name}>{user?.name || 'Misafir'}</Text>
-      <Text style={styles.balance}>{user?.balance || "0"} TL</Text>
+      <Text style={styles.name}>{user?.username || 'Misafir'}</Text>
+      <Text style={styles.balance}>{Number(user?.balance).toFixed(2)|| "0"} TL</Text>
     </View>
   );
 }
@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },

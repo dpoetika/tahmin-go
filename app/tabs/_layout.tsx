@@ -36,6 +36,15 @@ export default function TabLayout() {
         >
         </Tabs.Screen>
 
+        <Tabs.Screen name='tribunScreen'
+        options={{
+          title:"Tribün",
+          tabBarIcon:({color,size})=>(
+            <Ionicons name='planet-outline' size={size} color={color}/>
+          )
+        }}
+        >
+        </Tabs.Screen>
 
         <Tabs.Screen name='profileScreen'
         options={{
