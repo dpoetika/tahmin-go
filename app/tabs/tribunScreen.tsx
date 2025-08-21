@@ -1,22 +1,24 @@
 import { BASE_URL } from '@env';
 import { useNavigation } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
+
 import {
-    ActivityIndicator,
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 
 const TribunScreen = () => {
   const [error, setError] = useState("");
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const navigation = useNavigation();
-
+  const navigation:any = useNavigation()
+  const router:any = useRouter()  
   useEffect(() => {
     fetchData();
   }, []);
@@ -97,8 +99,15 @@ const TribunScreen = () => {
       key={blog.id} 
       style={styles.blogCard}
       onPress={() => {
-        // Blog detay sayfasına yönlendirme
-        //navigation.navigate('BlogDetail', { blog });
+        router.push({
+          pathname: "detailScreens/blogs",
+          params: {
+            id: blog.id,
+            username: blog.username,
+            title: blog.title,
+            coupons:JSON.stringify(blog.coupon)
+          },
+        });
       }}
     >
       <View style={styles.blogHeader}>
@@ -139,18 +148,6 @@ const TribunScreen = () => {
           {blog.coupon.matches && blog.coupon.matches.map(renderMatchItem)}
         </View>
       )}
-
-      <View style={styles.blogFooter}>
-        <View style={styles.actionButton}>
-          <Text style={styles.actionText}>👍 Beğen</Text>
-        </View>
-        <View style={styles.actionButton}>
-          <Text style={styles.actionText}>💬 Yorum</Text>
-        </View>
-        <View style={styles.actionButton}>
-          <Text style={styles.actionText}>🔗 Paylaş</Text>
-        </View>
-      </View>
     </TouchableOpacity>
   );
 
@@ -176,11 +173,6 @@ const TribunScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Tribün</Text>
-        <Text style={styles.headerSubtitle}>Kullanıcıların paylaştığı kuponlar</Text>
-      </View>
-
       {data.length === 0 ? (
         <View style={styles.empty}>
           <Text style={styles.emptyText}>Henüz blog paylaşılmamış</Text>
@@ -211,22 +203,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
-  },
-  header: {
-    padding: 16,
-    backgroundColor: 'white',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  headerSubtitle: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 4,
   },
   loading: {
     flex: 1,
@@ -378,20 +354,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
     marginTop: 2,
-  },
-  blogFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
-    paddingTop: 16,
-  },
-  actionButton: {
-    alignItems: 'center',
-  },
-  actionText: {
-    color: '#007AFF',
-    fontWeight: '500',
   },
 });
 

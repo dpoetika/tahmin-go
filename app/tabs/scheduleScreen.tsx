@@ -79,7 +79,7 @@ export default function ScheduleScreen() {
         <Pressable
           style={styles.card}
           onPress={() =>
-            router.push({ pathname: '/matchDetail/[key]' as any, params: { key: item.id } })
+            router.push({ pathname: '/detailScreens/[key]' as any, params: { key: item.id } })
           }
         >
           <View style={styles.cardHeader}>

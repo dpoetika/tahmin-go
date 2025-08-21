@@ -105,10 +105,10 @@ export default function MatchDetailScreen() {
                 <View key={oddKey} style={styles.oddItem}>
                   <Pressable
                     onPress={() => {
-                      // Kupona ekleme
+                      
                       const selectedOdd = {
                         id: matchKey,
-                        taraflar: data.taraflar,
+                        taraflar: data.Taraflar,
                         iddaa:item.title.replace("_","/"),
                         oran: oddValue || "-",
                         tahmin:oddKey.replace("_","/"),

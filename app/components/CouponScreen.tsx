@@ -12,7 +12,6 @@ const couponScreen = () => {
   const [odd, setOdd] = useState(1);
   const [bet, setBet] = useState(1);
   const {updateUser,user} = useAuth()
-  
   const postCoupons = (amount: number) => {
     seterror("");
     setLoading(true);
@@ -55,10 +54,6 @@ const couponScreen = () => {
             [newKey]: newCoupon, // ✅ object ekleniyor
           },
         };
-
-        console.log("-----");
-        console.log(userData);
-        console.log("-----");
 
         updateUser(userData);
         resetCoupon();
