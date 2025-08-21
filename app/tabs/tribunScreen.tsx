@@ -35,16 +35,12 @@ const TribunScreen = () => {
           const blogsArray:any[] = [];
           
           // Her kullanıcının bloglarını işle
-          Object.entries(json.blogs).forEach(([username, userBlogs]) => {
-            if (userBlogs && typeof userBlogs === 'object') {
-              Object.entries(userBlogs).forEach(([blogId, blogData]) => {
-                blogsArray.push({
-                  id: blogId,
-                  username: username,
-                  ...blogData,
-                  created_at: blogData.created_at || new Date().toISOString(),
-                  title: blogData.title || 'Başlıksız',
-                });
+          Object.entries(json.blogs).forEach(([post_id, post]) => {
+            if (post_id && typeof post === 'object') {
+              
+              blogsArray.push({
+                id:post_id,
+                ...post,
               });
             }
           });
@@ -99,12 +95,12 @@ const TribunScreen = () => {
       key={blog.id} 
       style={styles.blogCard}
       onPress={() => {
+        console.log(`Gonderildi ${blog.id} ${blog.author} ${blog.coupon}`)
         router.push({
           pathname: "detailScreens/blogs",
           params: {
             id: blog.id,
-            username: blog.username,
-            title: blog.title,
+            author: blog.author,
             coupons:JSON.stringify(blog.coupon)
           },
         });
@@ -113,10 +109,10 @@ const TribunScreen = () => {
       <View style={styles.blogHeader}>
         <View style={styles.userInfo}>
           <Image 
-            source={{ uri: `https://ui-avatars.com/api/?name=${blog.username}&background=random` }}
+            source={{ uri: `https://ui-avatars.com/api/?name=${blog.author}&background=random` }}
             style={styles.avatar}
           />
-          <Text style={styles.username}>@{blog.username}</Text>
+          <Text style={styles.username}>@{blog.author}</Text>
         </View>
         <Text style={styles.date}>{formatDate(blog.created_at)}</Text>
       </View>

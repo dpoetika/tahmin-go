@@ -32,7 +32,6 @@ const myCoupons = () => {
       body: JSON.stringify({
         username: user?.username,
         coupons: user?.coupons?.[id],
-        title: "Kupon Paylaşımı",
         id: newKey,
       }),
     })

@@ -1,3 +1,4 @@
+import { BASE_URL } from "@env";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useContext, useEffect, useState } from 'react';
 import {
@@ -15,6 +16,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import { useAuth } from "../hooks/AuthContext";
 import { CouponContext } from "../hooks/CouponContext";
 
 type Match = {
@@ -41,12 +43,12 @@ interface Comment {
 }
 
 export default function BlogComments(){
-  const { id, username, title, coupons } = useLocalSearchParams<{
+  const { id, author, coupons } = useLocalSearchParams<{
     id: string;
-    username: string;
-    title: string;
+    author: string;
     coupons: string;
   }>();
+  const { user } = useAuth();
   const [newComment, setNewComment] = useState("")
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,7 +57,7 @@ export default function BlogComments(){
   const [couponData, setCouponData] = useState<Coupon | null>(null);
   const { addToCoupon, coupon } = useContext(CouponContext);
   const router = useRouter();
-  // coupon verisini işle
+  
   useEffect(() => {
     if (coupons && typeof coupons === 'string') {
       try {
@@ -69,49 +71,91 @@ export default function BlogComments(){
   }, [coupons]);
 
   // API'den yorum verilerini çek
-  const fetchComments = async () => {
+  const fetchComments = async (id:string) => {
     try {
       setError(null);
-      
-      // Yorumları çek
-      const commentsResponse = await fetch(`https://jsonplaceholder.typicode.com/posts/${id}/comments`);
-      if (!commentsResponse.ok) throw new Error('Yorumlar yüklenemedi');
-      
+      setLoading(true);
+      const commentsResponse = await fetch(`${BASE_URL}/forum/comment?post_id=${id}`, {
+        method: "GET", // yorumları çekiyoruz
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user?.token}`, 
+        },
+      });
+
+      if (!commentsResponse.ok) {
+        throw new Error("Yorumlar yüklenemedi");
+      }
+
       const commentsData = await commentsResponse.json();
-      const formattedComments: Comment[] = commentsData.map((comment: any, index: number) => ({
-        id: comment.id.toString(),
-        username: comment.email.split('@')[0],
-        text: comment.body,
-        time: index === 0 ? '2sa' : index === 1 ? '1sa' : `${30 + index}dk`
-      }));
+      console.log("-------------------------------------------------------\n-----------------------------------\n---------------")
+      console.log(commentsData.comments)
+      const formattedComments: Comment[] = []
+      Object.entries(commentsData.comments).forEach(([comment_id, value]:[any,any])=> {
+          formattedComments.push({
+            id: comment_id,
+            username: value.username,
+            text: value.comment,
+            time: value.created_at,
+          });
+      })
       
+
       setComments(formattedComments);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Bir hata oluştu');
-      console.error('Yorumlar çekilirken hata:', err);
+      setError(err instanceof Error ? err.message : "Bir hata oluştu");
+      console.error("Yorumlar çekilirken hata:", err);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   };
 
+
   // Sayfa yüklendiğinde yorumları çek
   useEffect(() => {
-    fetchComments();
+    fetchComments(id);
   }, [id]);
 
   // Yenileme fonksiyonu
   const onRefresh = () => {
     setRefreshing(true);
-    fetchComments();
+    fetchComments(id);
   };
 
   const handleAddComment = () => {
-    if (!newComment.trim()) return;
-    // Burada API'ye gönderme veya state'e ekleme işlemi yapılabilir
-    console.log("Yeni yorum:", newComment);
-    setNewComment("");
+    setError("");
+    setLoading(true);
+    
+    fetch(`${BASE_URL}/forum/comment`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${user?.token}`,
+      },
+      body: JSON.stringify({
+        username: user?.username,
+        comment: newComment,
+        post_id:id,
+      }),
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          const errData = await res.json();
+          console.log(errData);
+          throw new Error(errData.error || "Bir hata oluştu");
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        setError(err.message);
+      })
+      .finally(() => {
+        onRefresh()
+        setLoading(false);
+      });
   };
+  
 
   // Yorum render item
   const renderComment = ({ item }: { item: Comment }) => (
@@ -190,7 +234,7 @@ export default function BlogComments(){
     return (
       <SafeAreaView style={styles.center}>
         <Text style={styles.errorText}>Hata: {error}</Text>
-        <Text style={styles.retryText} onPress={fetchComments}>
+        <Text style={styles.retryText} onPress={()=>fetchComments(id)}>
           Tekrar Dene
         </Text>
       </SafeAreaView>
@@ -210,8 +254,7 @@ export default function BlogComments(){
       >
         {/* Blog Başlık */}
         <View style={styles.blogHeader}>
-          <Text style={styles.blogTitle}>{title}</Text>
-          <Text style={styles.blogAuthor}>@{username}</Text>
+          <Text style={styles.blogAuthor}>@{author}</Text>
         </View>
 
         {/* Kupon Bilgileri */}
@@ -330,12 +373,6 @@ const styles = StyleSheet.create({
     padding: 20,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
-  },
-  blogTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    color: '#333',
   },
   blogAuthor: {
     fontSize: 16,
