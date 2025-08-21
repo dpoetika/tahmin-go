@@ -84,9 +84,9 @@ const TribunScreen = () => {
     <View key={index} style={styles.matchItem}>
       <Text style={styles.matchTeams}>{match.taraflar}</Text>
       <Text style={styles.matchPrediction}>
-        {match.tahmin} @ {match.oran}
+        {match.oran}
       </Text>
-      <Text style={styles.matchType}>{match.iddaa}</Text>
+      <Text style={styles.matchType}>{match.iddaa} {match.tahmin}</Text>
     </View>
   );
 
@@ -114,7 +114,7 @@ const TribunScreen = () => {
           />
           <Text style={styles.username}>@{blog.author}</Text>
         </View>
-        <Text style={styles.date}>{formatDate(blog.created_at)}</Text>
+        <Text style={styles.date}>{timeStamp(blog.created_at)}</Text>
       </View>
 
       <Text style={styles.blogTitle}>{blog.title}</Text>
@@ -130,7 +130,7 @@ const TribunScreen = () => {
             </View>
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Oran:</Text>
-              <Text style={styles.infoValue}>{blog.coupon.odd}</Text>
+              <Text style={styles.infoValue}>{(blog.coupon.odd).toFixed(2)}</Text>
             </View>
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Kazanç:</Text>
@@ -355,4 +355,5 @@ const styles = StyleSheet.create({
 
 // RefreshControl için import eklemeyi unutmayın
 import { RefreshControl } from 'react-native';
+import timeStamp from '../utils/timeStamp';
 

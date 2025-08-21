@@ -97,12 +97,11 @@ const myCoupons = () => {
         renderItem={({ item }) => {
           const [key, couponData] = item;
           const isSharing = sharingId === key;
-          
           return (
             <View style={styles.couponCard}>
               {/* Paylaşım Butonu ve Durum Göstergesi */}
               <View style={styles.cardHeader}>
-                <Text style={styles.couponTitle}>Kupon #{key}</Text>
+                <Text style={styles.couponTitle}>Kuponum #{Object.keys(user?.coupons || {}).indexOf(key)}</Text>
                 
                 <Pressable
                   style={[styles.shareButton, isSharing && styles.shareButtonDisabled]}
@@ -118,7 +117,7 @@ const myCoupons = () => {
               </View>
               
               <Text>Bahis: {couponData.betAmount} ₺</Text>
-              <Text>Oran: {couponData.odd}</Text>
+              <Text>Oran: {(couponData.odd).toFixed(2)}</Text>
               <Text>Toplam Kazanç: {(couponData.betAmount * couponData.odd).toFixed(2)} ₺</Text>
 
               {couponData.matches.map((m: any, idx: number) => (

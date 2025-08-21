@@ -5,6 +5,7 @@ import {
   ActivityIndicator,
   Button,
   FlatList,
+  Image,
   KeyboardAvoidingView,
   Platform,
   RefreshControl,
@@ -18,6 +19,7 @@ import {
 } from 'react-native';
 import { useAuth } from "../hooks/AuthContext";
 import { CouponContext } from "../hooks/CouponContext";
+import formatTimeAgo from "../utils/timeStamp";
 
 type Match = {
     id: string;
@@ -155,18 +157,23 @@ export default function BlogComments(){
         setLoading(false);
       });
   };
+
+
   
 
   // Yorum render item
   const renderComment = ({ item }: { item: Comment }) => (
     <View style={styles.commentItem}>
       <View style={styles.avatar}>
-        <Text style={styles.avatarText}>{item.username[0].toUpperCase()}</Text>
+        <Image 
+          source={{ uri: `https://ui-avatars.com/api/?name=${item.username}&background=random` }}
+          style={{width: 36,height: 36,borderRadius: 18,marginRight: 8,}}
+        />
       </View>
       <View style={styles.commentContent}>
         <Text style={styles.username}>{item.username}</Text>
         <Text style={styles.commentText}>{item.text}</Text>
-        <Text style={styles.timeText}>{item.time}</Text>
+        <Text style={styles.timeText}>{formatTimeAgo(item.time)}</Text>
       </View>
     </View>
   );
@@ -253,34 +260,41 @@ export default function BlogComments(){
         }
       >
         {/* Blog Başlık */}
-        <View style={styles.blogHeader}>
+       <View style={{marginTop:"15%",marginLeft:"5%"}}>
+        <Image 
+            source={{ uri: `https://ui-avatars.com/api/?name=${author}&background=random` }}
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 18,
+              marginRight: 8,
+            }}
+          />
           <Text style={styles.blogAuthor}>@{author}</Text>
         </View>
-
         {/* Kupon Bilgileri */}
         {couponData && (
           <View style={styles.couponSection}>
+            {/*-------------------------------------------------*/}
+
             <Text style={styles.sectionTitle}>Kupon Detayları</Text>
-            
-            {/* Kupon Özeti */}
-            <View style={styles.couponSummary}>
-              <View style={styles.summaryRow}>
-                <Text style={styles.summaryKey}>Toplam Oran:</Text>
-                <Text style={styles.summaryValue}>{couponData.odd.toFixed(2)}</Text>
+                      
+              <View style={styles.couponInfo}>
+                <View style={styles.infoItem}>
+                  <Text style={styles.infoLabel}>Bahis:</Text>
+                  <Text style={styles.infoValue}>{couponData.betAmount} ₺</Text>
+                </View>
+                <View style={styles.infoItem}>
+                  <Text style={styles.infoLabel}>Oran:</Text>
+                  <Text style={styles.infoValue}>{couponData.odd.toFixed(2)}</Text>
+                </View>
+                <View style={styles.infoItem}>
+                  <Text style={styles.infoLabel}>Kazanç:</Text>
+                  <Text style={[styles.infoValue, {color: '#34C759'}]}>
+                    {(couponData.betAmount * couponData.odd).toFixed(2)} ₺
+                  </Text>
+                </View>
               </View>
-              <View style={styles.summaryRow}>
-                <Text style={styles.summaryKey}>Bahis Miktarı:</Text>
-                <Text style={styles.summaryValue}>{couponData.betAmount} ₺</Text>
-              </View>
-              <View style={styles.summaryRow}>
-                <Text style={styles.summaryKey}>Potansiyel Kazanç:</Text>
-                <Text style={styles.summaryValue}>{(couponData.betAmount * couponData.odd).toFixed(2)} ₺</Text>
-              </View>
-              <View style={styles.summaryRow}>
-                <Text style={styles.summaryKey}>Maç Sayısı:</Text>
-                <Text style={styles.summaryValue}>{couponData.matches.length}</Text>
-              </View>
-            </View>
 
             {/* Maç Listesi */}
             <Text style={styles.matchesTitle}>Maçlar</Text>
@@ -369,55 +383,10 @@ const styles = StyleSheet.create({
     color: '#405de6',
     textDecorationLine: 'underline',
   },
-  blogHeader: {
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
   blogAuthor: {
     fontSize: 16,
     color: '#666',
     fontStyle: 'italic',
-  },
-  couponSection: {
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-    backgroundColor: '#f8f9fa',
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 15,
-  },
-  couponSummary: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  summaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  summaryKey: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-  },
-  summaryValue: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#405de6',
   },
   matchesTitle: {
     fontSize: 18,
@@ -451,18 +420,8 @@ const styles = StyleSheet.create({
     borderBottomColor: '#f0f0f0',
   },
   avatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#405de6',
-    justifyContent: 'center',
+    flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 12,
-  },
-  avatarText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 16,
   },
   commentContent: {
     flex: 1,
@@ -547,6 +506,42 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 6,
     backgroundColor: "#fff",
+  },
+
+
+
+
+
+
+  couponSection: {
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
+    padding: 16,
+    margin: 16,
+  },
+  sectionTitle: {
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 12,
+  },
+
+  couponInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  infoItem: {
+    alignItems: 'center',
+  },
+  infoLabel: {
+    fontSize: 12,
+    color: '#666',
+    marginBottom: 4,
+  },
+  infoValue: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
   },
 });
 
