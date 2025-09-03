@@ -79,7 +79,7 @@ TahminGO, futbol tutkunları için geliştirilmiş modern ve kullanıcı dostu b
 1. **Projeyi klonlayın**
 ```bash
 git clone https://github.com/dpoetika/tahmin-go
-cd tahmin-go
+cd tahmin-go/mobile
 ```
 
 2. **Bağımlılıkları yükleyin**
